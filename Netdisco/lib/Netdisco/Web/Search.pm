@@ -65,10 +65,12 @@ ajax '/ajax/content/search/node' => sub {
     content_type('text/html');
 
     my $mac = Net::MAC->new(mac => $node, 'die' => 0, verbose => 0);
+    my @active = (param('archived') ? () : (active => 1));
+
     if (eval { $mac->as_IEEE }) {
 
         my $sightings = schema('netdisco')->resultset('Node')
-          ->by_mac(param('archived'), $mac->as_IEEE);
+          ->search_by_mac({mac => $mac->as_IEEE, @active});
 
         my $ips = schema('netdisco')->resultset('NodeIp')
           ->by_mac(param('archived'), $mac->as_IEEE);
